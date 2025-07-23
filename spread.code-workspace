@@ -1,0 +1,24 @@
+{
+  "folders": [
+    {
+      "name": "Spread",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "npm.packageManager": "npm",
+    "npm.scriptRunner": "npm",
+    "cSpell.words": [
+      "Aktyn",
+      "Avenir",
+      "glsl",
+      "grayscale",
+      "highp",
+      "Krajewski",
+      "opsz",
+      "perlin",
+      "Radosław",
+      "wght"
+    ]
+  }
+}
