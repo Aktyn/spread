@@ -13,6 +13,7 @@ export class TiledLayer {
   private currentChunkX = -Number.MAX_SAFE_INTEGER
   private currentChunkY = -Number.MAX_SAFE_INTEGER
   private currentChunksRange = 0
+  private _ready = false
 
   constructor(
     private readonly renderer: Renderer,
@@ -26,6 +27,10 @@ export class TiledLayer {
     for (const chunk of this.getChunksAsArray()) {
       chunk.dispose()
     }
+  }
+
+  get ready() {
+    return this._ready
   }
 
   private getChunksAsArray() {
@@ -46,7 +51,7 @@ export class TiledLayer {
     const chunkY = TilesChunk.floorToChunkSize(this.camera.y)
 
     const largerAxis = Math.max(1 / this.camera.width, 1 / this.camera.height)
-    const n = Math.ceil(largerAxis / TilesChunk.CHUNK_SIZE)
+    const n = Math.ceil(largerAxis / TilesChunk.CHUNK_SIZE) + 1
 
     if (
       chunkX === this.currentChunkX &&
@@ -110,17 +115,35 @@ export class TiledLayer {
 
     const chunks = this.getChunksAsArray()
 
+    this._ready = true
+
     //TODO: develop meaningful update logic
     for (const chunk of chunks) {
       if (
         chunk.x + TilesChunk.CHUNK_SIZE <
-          this.camera.x - this.gameConfig.worldUpdateDistance ||
-        chunk.x > this.camera.x + this.gameConfig.worldUpdateDistance ||
-        chunk.y < this.camera.y - this.gameConfig.worldUpdateDistance ||
-        chunk.y > this.camera.y + this.gameConfig.worldUpdateDistance
+          this.camera.x - this.gameConfig.worldUpdateManhattanDistance ||
+        chunk.x >
+          this.camera.x + this.gameConfig.worldUpdateManhattanDistance ||
+        chunk.y <
+          this.camera.y - this.gameConfig.worldUpdateManhattanDistance ||
+        chunk.y > this.camera.y + this.gameConfig.worldUpdateManhattanDistance
       ) {
         this.removeChunk(chunk)
         continue
+      }
+
+      if (
+        !chunk.ready &&
+        chunk.x + TilesChunk.CHUNK_SIZE >
+          this.camera.x - this.gameConfig.minimumReadyTilesManhattanDistance &&
+        chunk.x <
+          this.camera.x + this.gameConfig.minimumReadyTilesManhattanDistance &&
+        chunk.y + TilesChunk.CHUNK_SIZE >
+          this.camera.y - this.gameConfig.minimumReadyTilesManhattanDistance &&
+        chunk.y <
+          this.camera.y + this.gameConfig.minimumReadyTilesManhattanDistance
+      ) {
+        this._ready = false
       }
 
       chunk.update(deltaTime)

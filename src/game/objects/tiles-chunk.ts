@@ -9,7 +9,7 @@ export class TilesChunk {
 
   private readonly tiles: Tile[][]
   private disposed = false
-  private ready = false //TODO: use this flag to defer first render if not enough surrounding tiles are ready
+  private _ready = false //TODO: use this flag to defer first render if not enough surrounding tiles are ready
 
   /**
    * It means that structure of this chunk has been changed and should be stored in external storage\
@@ -40,6 +40,10 @@ export class TilesChunk {
     void this.generate(terrainGenerator)
   }
 
+  get ready() {
+    return this._ready
+  }
+
   private async generate(terrainGenerator: TerrainGenerator) {
     const allTiles: Tile[] = []
     for (let x = 0; x < TilesChunk.CHUNK_SIZE; x++) {
@@ -63,7 +67,7 @@ export class TilesChunk {
       tile.update(true)
     }
 
-    this.ready = true
+    this._ready = true
   }
 
   dispose() {

@@ -61,12 +61,17 @@ export class Game {
   }
 
   update(time: number) {
-    const deltaTime = (time - this.lastTime) / 1000
+    let deltaTime = (time - this.lastTime) / 1000
     this.lastTime = time
 
     if (deltaTime > 1) {
       console.warn("Skipping frame due to delta time exceeding 1000ms")
       return
+    }
+
+    if (!this.groundLayer.ready || !this.collisionLayer.ready) {
+      console.log("Game is not ready") //TODO: show loading screen or something like that
+      deltaTime = 0
     }
 
     this.player.update(deltaTime)
