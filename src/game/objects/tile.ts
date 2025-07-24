@@ -23,7 +23,7 @@ export class Tile extends Sprite {
     const buffer = new Uint8Array(
       Consts.TILE_RESOLUTION * Consts.TILE_RESOLUTION * 3,
     )
-    buffer.fill(128)
+    // buffer.fill(128)
     const source = {
       data: buffer,
       width: Consts.TILE_RESOLUTION,
@@ -33,14 +33,14 @@ export class Tile extends Sprite {
     super(renderer.gl, new Texture(renderer.gl, source), zIndex)
 
     this.source = source
-    // this.setTransform(x, y, Tile.TILE_SCALE, Tile.TILE_SCALE, 0) //TODO: restore
-    this.setTransform(
-      x,
-      y,
-      Tile.TILE_SCALE * 0.984375,
-      Tile.TILE_SCALE * 0.984375,
-      0,
-    )
+    this.setTransform(x, y, Tile.TILE_SCALE, Tile.TILE_SCALE, 0) //TODO: restore
+    // this.setTransform(
+    //   x,
+    //   y,
+    //   Tile.TILE_SCALE * 0.984375,
+    //   Tile.TILE_SCALE * 0.984375,
+    //   0,
+    // )
   }
 
   dispose() {

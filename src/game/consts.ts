@@ -10,4 +10,4 @@ export const Consts = {
     BACKGROUND_TILE: 0,
     PLAYER: 1,
   },
-}
+} as const

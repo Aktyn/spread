@@ -1,4 +1,6 @@
 import type { Renderer } from "../../graphics/renderer"
+import { Consts } from "../consts"
+import type { TerrainGenerator } from "../utils/terrain-generator"
 import { Tile } from "./tile"
 
 export class TilesChunk {
@@ -22,16 +24,25 @@ export class TilesChunk {
 
   constructor(
     renderer: Renderer,
+    terrainGenerator: TerrainGenerator,
     public readonly x: number,
     public readonly y: number,
     zIndex: number,
   ) {
-    const chunkShade = Math.random() * 192 + 64
+    // const chunkShade = Math.random() * 192 + 64
 
     this.tiles = Array.from({ length: TilesChunk.CHUNK_SIZE }, (_, indexX) =>
       Array.from({ length: TilesChunk.CHUNK_SIZE }, (_, indexY) => {
         const tile = new Tile(renderer, x + indexX, y + indexY, zIndex)
-        tile.source.data.fill(chunkShade)
+        // tile.source.data.fill(chunkShade)
+
+        //TODO: implement asynchronous generating/loading, possible in web workers
+        terrainGenerator.generateTile(
+          tile.source.data,
+          tile.x * Consts.TILE_RESOLUTION,
+          tile.y * Consts.TILE_RESOLUTION,
+          Consts.TILE_RESOLUTION,
+        )
         tile.setDirty()
         tile.update(true)
         return tile

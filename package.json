@@ -13,6 +13,7 @@
     "start": "npm run preview"
   },
   "dependencies": {
+    "alea": "^1.0.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "gl-matrix": "^3.4.3",
@@ -20,6 +21,7 @@
     "react": "^19.1.0",
     "react-compiler-runtime": "beta",
     "react-dom": "^19.1.0",
+    "simplex-noise": "^4.0.3",
     "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
