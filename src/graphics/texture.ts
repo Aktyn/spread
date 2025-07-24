@@ -2,6 +2,8 @@ export type ImageSource = {
   data: Uint8Array
   width: number
   height: number
+
+  /** @default gl.RGB */
   format?: number
 }
 

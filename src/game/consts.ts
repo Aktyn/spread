@@ -8,6 +8,7 @@ export const Consts = {
 
   Z_INDEX: {
     BACKGROUND_TILE: 0,
-    PLAYER: 1,
+    COLLISION_TILE: 1,
+    PLAYER: 2,
   },
 } as const

@@ -19,21 +19,25 @@ export class Tile extends Sprite {
     x: number,
     y: number,
     zIndex: number,
+    enableTransparency: boolean,
   ) {
+    const channels = enableTransparency ? 4 : 3
+
     const buffer = new Uint8Array(
-      Consts.TILE_RESOLUTION * Consts.TILE_RESOLUTION * 3,
+      Consts.TILE_RESOLUTION * Consts.TILE_RESOLUTION * channels,
     )
     // buffer.fill(128)
-    const source = {
+    const source: ImageSource = {
       data: buffer,
       width: Consts.TILE_RESOLUTION,
       height: Consts.TILE_RESOLUTION,
+      format: enableTransparency ? renderer.gl.RGBA : renderer.gl.RGB,
     }
 
     super(renderer.gl, new Texture(renderer.gl, source), zIndex)
 
     this.source = source
-    this.setTransform(x, y, Tile.TILE_SCALE, Tile.TILE_SCALE, 0) //TODO: restore
+    this.setTransform(x, y, Tile.TILE_SCALE, Tile.TILE_SCALE) //TODO: restore
     // this.setTransform(
     //   x,
     //   y,

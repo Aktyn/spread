@@ -70,8 +70,9 @@ export class Renderer {
 
   setViewport(vector: Float32Array) {
     this.viewport.set(vector)
+
     this.viewportChanged = true
-    this.gl.uniform4fv(this.shader.uniforms.u_camera, vector)
+    this.gl.uniform4fv(this.shader.uniforms.u_camera, this.viewport)
   }
 
   clear() {

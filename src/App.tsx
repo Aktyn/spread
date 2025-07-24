@@ -43,11 +43,14 @@ function App() {
     const observer = new ResizeObserver((entries) => {
       const entry = entries[0]
       if (entry) {
-        game.camera.setResolution(
-          entry.contentRect.width,
-          entry.contentRect.height,
-        )
-        renderer.setSize(entry.contentRect.width, entry.contentRect.height)
+        canvas.style.width = `${entry.contentRect.width}px`
+        canvas.style.height = `${entry.contentRect.height}px`
+
+        const width = entry.contentRect.width * window.devicePixelRatio
+        const height = entry.contentRect.height * window.devicePixelRatio
+
+        game.camera.setResolution(width, height)
+        renderer.setSize(width, height)
       }
     })
     observer.observe(container)
@@ -82,7 +85,7 @@ function App() {
   return (
     <div
       ref={containerRef}
-      className="w-screen h-screen flex items-center justify-center relative overflow-hidden"
+      className="w-dvw h-dvh flex items-center justify-center relative overflow-hidden"
     >
       <canvas></canvas>
       <Stats ref={statsRef} items={statsItems} />

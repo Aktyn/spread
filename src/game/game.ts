@@ -5,6 +5,7 @@ import { Camera } from "./objects/camera"
 import { Player } from "./objects/player"
 import { TiledLayer } from "./objects/tiled-layer"
 import { Steering } from "./steering"
+import { TerrainGenerator } from "./utils/terrain-generator"
 
 export class Game {
   private lastTime = 0
@@ -14,14 +15,31 @@ export class Game {
   public readonly camera = new Camera()
   public readonly player: Player
 
-  private readonly backgroundPaintLayer: TiledLayer
+  private readonly groundLayer: TiledLayer
+  private readonly collisionLayer: TiledLayer
 
   constructor(private readonly renderer: Renderer) {
-    this.backgroundPaintLayer = new TiledLayer(
+    this.groundLayer = new TiledLayer(
       renderer,
       this.camera,
       defaultGameConfig,
       Consts.Z_INDEX.BACKGROUND_TILE,
+      new TerrainGenerator({
+        seed: "ground-layer-seed",
+        fade: 1,
+      }),
+    )
+
+    this.collisionLayer = new TiledLayer(
+      renderer,
+      this.camera,
+      defaultGameConfig,
+      Consts.Z_INDEX.COLLISION_TILE,
+      new TerrainGenerator({
+        seed: "collision-layer-seed",
+        fade: 0,
+        transparentBackground: true,
+      }),
     )
 
     this.player = new Player(
@@ -36,7 +54,8 @@ export class Game {
 
   dispose() {
     this.steering.dispose()
-    this.backgroundPaintLayer.dispose()
+    this.groundLayer.dispose()
+    this.collisionLayer.dispose()
 
     this.renderer.removeObjects(this.player)
   }
@@ -52,8 +71,13 @@ export class Game {
 
     this.player.update(deltaTime)
 
-    this.backgroundPaintLayer.update(deltaTime)
-    this.totalChunksCount = this.backgroundPaintLayer.getChunksCount()
+    this.totalChunksCount = 0
+
+    this.groundLayer.update(deltaTime)
+    this.totalChunksCount += this.groundLayer.getChunksCount()
+
+    this.collisionLayer.update(deltaTime)
+    this.totalChunksCount += this.collisionLayer.getChunksCount()
 
     this.camera.update(deltaTime)
 

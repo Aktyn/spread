@@ -13,7 +13,7 @@ export abstract class Object2D {
   private _moved = true
 
   constructor() {
-    this.setTransform(0, 0, 1, 1, 0)
+    this.setTransform(0, 0, 1, 1)
   }
 
   get visible() {
@@ -56,7 +56,7 @@ export abstract class Object2D {
     y: number,
     width: number,
     height: number,
-    rotation: number,
+    rotation = 0,
   ) {
     this._x = x
     this._y = y

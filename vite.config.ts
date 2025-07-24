@@ -32,7 +32,6 @@ export default defineConfig({
     }
   ],
   define: {
-    global: "window",
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
   },
 })

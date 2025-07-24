@@ -1,6 +1,6 @@
 import type { Renderer } from "../../graphics/renderer"
 import type { GameConfig } from "../config"
-import { TerrainGenerator } from "../utils/terrain-generator"
+import type { TerrainGenerator } from "../utils/terrain-generator"
 import type { Camera } from "./camera"
 import { TilesChunk } from "./tiles-chunk"
 
@@ -14,14 +14,12 @@ export class TiledLayer {
   private currentChunkY = -Number.MAX_SAFE_INTEGER
   private currentChunksRange = 0
 
-  //TODO: allow user to use custom seed
-  private readonly terrainGenerator = new TerrainGenerator("tiled-layer-seed")
-
   constructor(
     private readonly renderer: Renderer,
     private readonly camera: Camera,
     private readonly gameConfig: GameConfig,
     private readonly zIndex: number,
+    private readonly terrainGenerator: TerrainGenerator,
   ) {}
 
   dispose() {
@@ -86,6 +84,7 @@ export class TiledLayer {
             x,
             y,
             this.zIndex,
+            this.terrainGenerator.options.transparentBackground ?? false,
           )
 
           column.set(y, chunk)

@@ -182,7 +182,7 @@
 
   body {
     @apply bg-background text-foreground;
-    @apply h-screen w-screen grid grid-cols-[auto_1fr] grid-rows-1 items-stretch overflow-hidden;
+    @apply h-dvh w-dvw grid grid-cols-[auto_1fr] grid-rows-1 items-stretch overflow-hidden;
   }
 
   ::-webkit-scrollbar {
