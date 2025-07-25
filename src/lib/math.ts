@@ -1,5 +1,6 @@
 export function normalizeAngle(angle: number) {
-  return angle % (2 * Math.PI)
+  const twoPi = 2 * Math.PI
+  return ((angle % twoPi) + twoPi) % twoPi
 }
 
 export function clamp(value: number, min: number, max: number) {
