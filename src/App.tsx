@@ -1,8 +1,9 @@
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, useState } from "react"
 import { assert } from "./lib/utils"
 import { Stats, type StatsInterface, type StatsItem } from "./components/stats"
 import { Renderer } from "./graphics/renderer"
 import { Game } from "./game/game"
+import {  Loader2 } from "lucide-react"
 
 const statsItems = [
   {
@@ -30,6 +31,8 @@ const statsItems = [
 function App() {
   const containerRef = useRef<HTMLDivElement>(null)
   const statsRef = useRef<StatsInterface>(null)
+
+  const [showChunksLoading, setShowChunksLoading] = useState(false)
 
   useEffect(() => {
     const container = containerRef.current
@@ -60,6 +63,8 @@ function App() {
     const step = (time: number) => {
       const start = performance.now()
 
+      setShowChunksLoading(game.loadingChunks)
+
       game.update(time)
       renderer.draw()
 
@@ -88,6 +93,12 @@ function App() {
       className="w-dvw h-dvh flex items-center justify-center relative overflow-hidden"
     >
       <canvas></canvas>
+      {showChunksLoading && (
+        <div className="absolute inset-0 backdrop-blur-sm bg-background/20 flex flex-col gap-2 items-center justify-center font-bold text-xl">
+          <Loader2 className="animate-spin size-16" />
+          <span>Generating chunks...</span>
+        </div>
+      )}
       <Stats ref={statsRef} items={statsItems} />
     </div>
   )

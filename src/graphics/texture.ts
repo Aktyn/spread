@@ -8,7 +8,8 @@ export type ImageSource = {
 }
 
 export class Texture {
-  private readonly texture: WebGLTexture
+  private readonly texture
+  private disposed = false
 
   public static loadFromFile(
     gl: WebGL2RenderingContext,
@@ -59,7 +60,12 @@ export class Texture {
   }
 
   dispose() {
+    if (this.disposed) {
+      return
+    }
+
     this.gl.deleteTexture(this.texture)
+    this.disposed = true
   }
 
   update(source: ImageSource, gl = this.gl) {

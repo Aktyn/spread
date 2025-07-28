@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import { Consts } from "../consts"
 import type { TerrainGeneratorOptions } from "./terrain-generator.worker"
 import Worker from "./terrain-generator.worker?worker"

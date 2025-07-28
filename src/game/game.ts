@@ -4,6 +4,7 @@ import { Consts } from "./consts"
 import { Camera } from "./objects/camera"
 import { Player } from "./objects/player"
 import { TiledLayer } from "./objects/tiled-layer"
+import { TilesChunk } from "./objects/tiles-chunk"
 import { Steering } from "./steering"
 import { TerrainGenerator } from "./utils/terrain-generator"
 
@@ -24,6 +25,7 @@ export class Game {
       this.camera,
       defaultGameConfig,
       Consts.Z_INDEX.BACKGROUND_TILE,
+      "background",
       new TerrainGenerator({
         seed: "ground-layer-seed",
         fade: 1,
@@ -35,6 +37,7 @@ export class Game {
       this.camera,
       defaultGameConfig,
       Consts.Z_INDEX.COLLISION_TILE,
+      "solid",
       new TerrainGenerator({
         seed: "collision-layer-seed",
         fade: 0,
@@ -47,17 +50,23 @@ export class Game {
       renderer.assets.textures.player,
       this.steering,
     )
-    renderer.addObjects(this.player)
+    renderer.layers.objects.addObjects(this.player)
 
     this.camera.follow(this.player)
   }
 
   dispose() {
+    TilesChunk.clearQueue()
+
     this.steering.dispose()
     this.groundLayer.dispose()
     this.collisionLayer.dispose()
 
-    this.renderer.removeObjects(this.player)
+    this.renderer.layers.objects.removeObjects(this.player)
+  }
+
+  get loadingChunks() {
+    return !this.groundLayer.ready || !this.collisionLayer.ready
   }
 
   update(time: number) {
@@ -69,8 +78,7 @@ export class Game {
       return
     }
 
-    if (!this.groundLayer.ready || !this.collisionLayer.ready) {
-      console.log("Game is not ready") //TODO: show loading screen or something like that
+    if (this.loadingChunks) {
       deltaTime = 0
     }
 

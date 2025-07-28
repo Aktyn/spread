@@ -1,32 +1,51 @@
-import fullscreenVertexShader from "../assets/shaders/main-vs.glsl?raw"
-import fullscreenFragmentShader from "../assets/shaders/main-fs.glsl?raw"
+import mainVertexShader from "../assets/shaders/main.vs?raw"
+import mainFragmentShader from "../assets/shaders/main.fs?raw"
+import combineVertexShader from "../assets/shaders/combine.vs?raw"
+import combineFragmentShader from "../assets/shaders/combine.fs?raw"
 import { assert } from "../lib/utils"
 
-enum ShaderVariant {
-  Fullscreen = "fullscreen",
+export enum ShaderVariant {
+  Basic = "basic",
+  Combine = "combine",
+}
+
+const ShaderConfig: {
+  [key in ShaderVariant]: {
+    attributes: string[]
+    uniforms: string[]
+  }
+} = {
+  [ShaderVariant.Basic]: {
+    attributes: ["v_position"],
+    uniforms: ["u_texture", "u_transform", "u_camera"],
+  },
+  [ShaderVariant.Combine]: {
+    attributes: ["v_position"],
+    uniforms: ["u_background", "u_solid", "u_objects", "u_viewport_scale"],
+  },
 }
 
 const sources: {
   [key in ShaderVariant]: { vertex: string; fragment: string }
 } = {
-  [ShaderVariant.Fullscreen]: {
-    vertex: fullscreenVertexShader,
-    fragment: fullscreenFragmentShader,
+  [ShaderVariant.Basic]: {
+    vertex: mainVertexShader,
+    fragment: mainFragmentShader,
+  },
+  [ShaderVariant.Combine]: {
+    vertex: combineVertexShader,
+    fragment: combineFragmentShader,
   },
 }
 
-export class Shader<Attributes extends string, Uniforms extends string> {
-  public static readonly Variants = ShaderVariant
-
-  public readonly program: WebGLProgram
-  public readonly attributes: Record<Attributes, number>
-  public readonly uniforms: Record<Uniforms, WebGLUniformLocation>
+export class Shader {
+  public readonly program
+  public readonly attributes
+  public readonly uniforms
 
   constructor(
     private readonly gl: WebGL2RenderingContext,
     variant: ShaderVariant,
-    attributeNames: Attributes[],
-    uniformNames: Uniforms[],
   ) {
     const vertexShader = createShader(
       gl,
@@ -43,24 +62,24 @@ export class Shader<Attributes extends string, Uniforms extends string> {
 
     this.program = createProgram(gl, vertexShader, fragmentShader)
 
-    this.attributes = attributeNames.reduce(
+    this.attributes = ShaderConfig[variant].attributes.reduce(
       (acc, name) => {
         const location = gl.getAttribLocation(this.program, name)
         assert(location !== -1, `Attribute "${name}" not found`)
         acc[name] = location
         return acc
       },
-      {} as Record<Attributes, number>,
+      {} as Record<string, number>,
     )
 
-    this.uniforms = uniformNames.reduce(
+    this.uniforms = ShaderConfig[variant].uniforms.reduce(
       (acc, name) => {
         const location = gl.getUniformLocation(this.program, name)
         assert(!!location, `Uniform "${name}" not found`)
         acc[name] = location
         return acc
       },
-      {} as Record<Uniforms, WebGLUniformLocation>,
+      {} as Record<string, WebGLUniformLocation>,
     )
   }
 

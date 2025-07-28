@@ -134,11 +134,13 @@ class TerrainGeneratorWorker {
 
     background: {
       scale: 1,
-      transform: (value: number) => value * 0.4,
+      transform: (value: number) => value * 0.25 + 0.5,
+      // transform: () => 0.75,
     },
     background2: {
       scale: 500,
-      transform: (value: number) => value * 0.5 + 0.25,
+      transform: (value: number) => value * 0.6 + 0.4,
+      // transform: () => 1,
     },
 
     color: {
@@ -153,6 +155,7 @@ const biomeProbabilities = {
   twoChannels: 0.09,
   white: 0.01,
 }
+const lightness = 0.33
 
 function getBiomeChannels(value: number): [number, number, number] {
   const pSingle = biomeProbabilities.singleChannel
@@ -161,9 +164,9 @@ function getBiomeChannels(value: number): [number, number, number] {
   if (value < pSingle) {
     const index = Math.floor((value / pSingle) * 3)
     const colors: [number, number, number][] = [
-      [1, 0, 0], // red
-      [0, 1, 0], // green
-      [0, 0, 1], // blue
+      [1, lightness, lightness], // red
+      [lightness, 1, lightness], // green
+      [lightness, lightness, 1], // blue
     ]
     return colors[index]
   }
@@ -174,9 +177,9 @@ function getBiomeChannels(value: number): [number, number, number] {
       (relativeValue / biomeProbabilities.twoChannels) * 3,
     )
     const colors: [number, number, number][] = [
-      [1, 1, 0], // yellow
-      [1, 0, 1], // pink
-      [0, 1, 1], // cyan
+      [1, 1, lightness], // yellow
+      [1, lightness, 1], // pink
+      [lightness, 1, 1], // cyan
     ]
     return colors[index]
   }

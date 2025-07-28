@@ -6,7 +6,7 @@ export const defaultGameConfig = {
    * Minimum manhattan distance from player or camera center at which all tiles are ready\
    * If there is a loading data with this distance, game should be suspended
    */
-  minimumReadyTilesManhattanDistance: 4,
+  minimumReadyTilesManhattanDistance: 6,
 }
 
 export type GameConfig = typeof defaultGameConfig

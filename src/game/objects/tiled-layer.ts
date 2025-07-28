@@ -20,6 +20,7 @@ export class TiledLayer {
     private readonly camera: Camera,
     private readonly gameConfig: GameConfig,
     private readonly zIndex: number,
+    private readonly rendererLayer: keyof Renderer["layers"],
     private readonly terrainGenerator: TerrainGenerator,
   ) {}
 
@@ -46,9 +47,9 @@ export class TiledLayer {
     )
   }
 
-  private updateLoadedChunks() {
-    const chunkX = TilesChunk.floorToChunkSize(this.camera.x)
-    const chunkY = TilesChunk.floorToChunkSize(this.camera.y)
+  private updateLoadedChunks(originX: number, originY: number) {
+    const chunkX = TilesChunk.floorToChunkSize(originX)
+    const chunkY = TilesChunk.floorToChunkSize(originY)
 
     const largerAxis = Math.max(1 / this.camera.width, 1 / this.camera.height)
     const n = Math.ceil(largerAxis / TilesChunk.CHUNK_SIZE) + 1
@@ -65,9 +66,11 @@ export class TiledLayer {
     this.currentChunkY = chunkY
     this.currentChunksRange = n
 
+    const chunksRange = n * TilesChunk.CHUNK_SIZE
+
     for (
-      let x = chunkX - n * TilesChunk.CHUNK_SIZE;
-      x <= chunkX + n * TilesChunk.CHUNK_SIZE;
+      let x = chunkX - chunksRange;
+      x <= chunkX + chunksRange;
       x += TilesChunk.CHUNK_SIZE
     ) {
       let column = this.tileChunks.get(x)
@@ -78,22 +81,36 @@ export class TiledLayer {
       }
 
       for (
-        let y = chunkY - n * TilesChunk.CHUNK_SIZE;
-        y <= chunkY + n * TilesChunk.CHUNK_SIZE;
+        let y = chunkY - chunksRange;
+        y <= chunkY + chunksRange;
         y += TilesChunk.CHUNK_SIZE
       ) {
-        if (!column.has(y)) {
-          const chunk = new TilesChunk(
+        let chunk = column.get(y)
+        if (!chunk) {
+          const priority =
+            1 -
+            ((x + TilesChunk.CHUNK_SIZE / 2 - originX) ** 2 +
+              (y + TilesChunk.CHUNK_SIZE / 2 - originY) ** 2)
+
+          chunk = new TilesChunk(
             this.renderer,
             this.terrainGenerator,
             x,
             y,
             this.zIndex,
+            this.rendererLayer,
             this.terrainGenerator.options.transparentBackground ?? false,
+            priority,
           )
 
           column.set(y, chunk)
-          this.renderer.addObjects(...chunk)
+        } else if (!chunk.ready) {
+          const priority =
+            1 -
+            ((x + TilesChunk.CHUNK_SIZE / 2 - originX) ** 2 +
+              (y + TilesChunk.CHUNK_SIZE / 2 - originY) ** 2)
+
+          chunk.reprioritise(priority)
         }
       }
     }
@@ -111,7 +128,9 @@ export class TiledLayer {
   }
 
   update(deltaTime: number) {
-    this.updateLoadedChunks()
+    this.updateLoadedChunks(this.camera.x, this.camera.y)
+
+    //TODO: pregenerate chunks within distance of worldUpdateManhattanDistance (just generate from perlin noise and store externally, without rendering)
 
     const chunks = this.getChunksAsArray()
 

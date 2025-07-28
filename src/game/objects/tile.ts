@@ -6,7 +6,7 @@ import { Sprite } from "../../graphics/sprite"
 export class Tile extends Sprite {
   public static readonly TILE_SCALE = 1
 
-  public readonly source: ImageSource
+  public readonly source
 
   private dirty = false
 
@@ -19,6 +19,7 @@ export class Tile extends Sprite {
     x: number,
     y: number,
     zIndex: number,
+    private readonly rendererLayer: keyof Renderer["layers"],
     enableTransparency: boolean,
   ) {
     const channels = enableTransparency ? 4 : 3
@@ -45,10 +46,12 @@ export class Tile extends Sprite {
     //   Tile.TILE_SCALE * 0.984375,
     //   0,
     // )
+
+    this.renderer.layers[this.rendererLayer].addObjects(this)
   }
 
   dispose() {
-    this.renderer.removeObjects(this)
+    this.renderer.layers[this.rendererLayer].removeObjects(this)
     this.texture.dispose()
   }
 
