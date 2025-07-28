@@ -3,7 +3,7 @@ import { assert } from "./lib/utils"
 import { Stats, type StatsInterface, type StatsItem } from "./components/stats"
 import { Renderer } from "./graphics/renderer"
 import { Game } from "./game/game"
-import {  Loader2 } from "lucide-react"
+import { Loader2 } from "lucide-react"
 
 const statsItems = [
   {
@@ -20,6 +20,11 @@ const statsItems = [
     name: "player-y",
     label: "Player Y",
     format: (value) => value.toFixed(2),
+  },
+  {
+    name: "chunks-queue",
+    label: "Loading chunks",
+    format: (value) => Math.round(value),
   },
   {
     name: "chunks-count",
@@ -63,7 +68,7 @@ function App() {
     const step = (time: number) => {
       const start = performance.now()
 
-      setShowChunksLoading(game.loadingChunks)
+      setShowChunksLoading(game.waitingForChunks)
 
       game.update(time)
       renderer.draw()
@@ -71,6 +76,7 @@ function App() {
       statsRef.current?.update("frame", performance.now() - start)
       statsRef.current?.update("player-x", game.player.x)
       statsRef.current?.update("player-y", game.player.y)
+      statsRef.current?.update("chunks-queue", game.chunksInQueue)
       statsRef.current?.update("chunks-count", game.totalChunksCount)
 
       animationFrameId = requestAnimationFrame(step)

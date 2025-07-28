@@ -65,7 +65,11 @@ export class Game {
     this.renderer.layers.objects.removeObjects(this.player)
   }
 
-  get loadingChunks() {
+  get chunksInQueue() {
+    return TilesChunk.queueSize()
+  }
+
+  get waitingForChunks() {
     return !this.groundLayer.ready || !this.collisionLayer.ready
   }
 
@@ -78,7 +82,7 @@ export class Game {
       return
     }
 
-    if (this.loadingChunks) {
+    if (this.waitingForChunks) {
       deltaTime = 0
     }
 

@@ -56,7 +56,9 @@ export class Renderer {
   }
 
   dispose() {
-    //TODO
+    for (const layer in this.layers) {
+      this.layers[layer as keyof typeof this.layers].dispose()
+    }
   }
 
   setSize(width: number, height: number) {

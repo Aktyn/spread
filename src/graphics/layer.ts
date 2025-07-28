@@ -30,6 +30,13 @@ export class Layer {
     )
   }
 
+  dispose() {
+    for (let zIndex = 0; zIndex < this.objects.length; zIndex++) {
+      // this.removeObjects(...this.objects[zIndex])
+    }
+    this.objects = []
+  }
+
   draw(viewportChanged: boolean) {
     this.shader.use()
     this.gl.uniform1i(this.shader.uniforms.u_texture, 0) // TODO: might be enough to call it once
@@ -65,6 +72,9 @@ export class Layer {
 
   removeObjects(...objects: DrawableObject[]) {
     for (const object of objects) {
+      if (!(object.zIndex in this.objects)) {
+        continue
+      }
       this.objects[object.zIndex] = this.objects[object.zIndex].filter(
         (object) => !objects.includes(object),
       )

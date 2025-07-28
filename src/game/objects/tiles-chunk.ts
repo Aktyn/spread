@@ -8,13 +8,16 @@ import { Tile } from "./tile"
 export class TilesChunk {
   private static Queue = new Queue<TilesChunk>()
 
+  public static queueSize() {
+    return TilesChunk.Queue.size
+  }
   public static clearQueue() {
     TilesChunk.Queue.clear()
   }
 
   public static readonly CHUNK_SIZE = 8
 
-  private readonly tiles: Tile[][]
+  private tiles: Tile[][] = []
   private disposed = false
   private _ready = false //TODO: use this flag to defer first render if not enough surrounding tiles are ready
 
@@ -25,28 +28,15 @@ export class TilesChunk {
   private eligibleForStorage = false
 
   constructor(
-    renderer: Renderer,
+    private readonly renderer: Renderer,
     terrainGenerator: TerrainGenerator,
     public readonly x: number,
     public readonly y: number,
-    zIndex: number,
-    rendererLayer: keyof Renderer["layers"],
-    enableTransparency: boolean,
+    private readonly zIndex: number,
+    private readonly rendererLayer: keyof Renderer["layers"],
+    private readonly enableTransparency: boolean,
     priority: number,
   ) {
-    this.tiles = Array.from({ length: TilesChunk.CHUNK_SIZE }, (_, indexX) =>
-      Array.from({ length: TilesChunk.CHUNK_SIZE }, (_, indexY) => {
-        return new Tile(
-          renderer,
-          x + indexX,
-          y + indexY,
-          zIndex,
-          rendererLayer,
-          enableTransparency,
-        )
-      }),
-    )
-
     TilesChunk.Queue.add(this, priority)
     void this.generate(terrainGenerator).finally(() => {
       TilesChunk.Queue.remove(this)
@@ -82,27 +72,55 @@ export class TilesChunk {
       return
     }
 
-    const allTiles: Tile[] = []
+    const tilesToGenerate: Array<{ x: number; y: number }> = []
     for (let x = 0; x < TilesChunk.CHUNK_SIZE; x++) {
       for (let y = 0; y < TilesChunk.CHUNK_SIZE; y++) {
-        allTiles.push(this.tiles[x][y])
+        tilesToGenerate.push({ x, y })
       }
     }
 
-    shuffle(allTiles)
+    shuffle(tilesToGenerate)
 
-    await Promise.all(
-      allTiles.map(async (tile) => {
+    const generatedTiles = await Promise.all(
+      tilesToGenerate.map(async (tileIndexes) => {
         await wait(randomIntInRange(2, 8))
+
+        const tile = new Tile(
+          this.renderer,
+          this.x + tileIndexes.x,
+          this.y + tileIndexes.y,
+          this.zIndex,
+          this.rendererLayer,
+          this.enableTransparency,
+        )
         const tileData = await terrainGenerator.generateTileData(tile.x, tile.y)
 
         if (!this.disposed) {
           tile.source.data.set(tileData)
           tile.setDirty()
           tile.update(true)
+        } else {
+          tile.dispose()
         }
+
+        return { tile, tileIndexes }
       }),
     )
+
+    generatedTiles.sort(
+      (a, b) =>
+        a.tileIndexes.y +
+        a.tileIndexes.x * TilesChunk.CHUNK_SIZE -
+        (b.tileIndexes.y + b.tileIndexes.x * TilesChunk.CHUNK_SIZE),
+    )
+
+    if (!this.disposed) {
+      this.tiles = Array.from({ length: TilesChunk.CHUNK_SIZE }, (_, indexX) =>
+        Array.from({ length: TilesChunk.CHUNK_SIZE }, (_, indexY) => {
+          return generatedTiles[indexY + indexX * TilesChunk.CHUNK_SIZE].tile
+        }),
+      )
+    }
 
     this._ready = true
   }

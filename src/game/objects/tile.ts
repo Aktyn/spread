@@ -10,7 +10,7 @@ export class Tile extends Sprite {
 
   private dirty = false
 
-  /** Update texture every 5 frames */
+  /** Update texture every N frames */
   private readonly textureUpdateFrequency = 6
   private textureUpdateCounter = 0
 

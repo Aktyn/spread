@@ -1,6 +1,10 @@
 export class Queue<T extends object> {
   private priorityQueue: Array<{ element: T; priority: number }> = []
 
+  get size() {
+    return this.priorityQueue.length
+  }
+
   private sort() {
     this.priorityQueue.sort((a, b) => b.priority - a.priority)
   }

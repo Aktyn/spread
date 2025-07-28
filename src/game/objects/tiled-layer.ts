@@ -136,7 +136,6 @@ export class TiledLayer {
 
     this._ready = true
 
-    //TODO: develop meaningful update logic
     for (const chunk of chunks) {
       if (
         chunk.x + TilesChunk.CHUNK_SIZE <
