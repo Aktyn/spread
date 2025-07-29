@@ -16,7 +16,7 @@ out vec4 outColor;
 #define SHADOW_FACTOR 0.25
 #define SHADOW_VECTOR vec2(1.0, -1.0) * 0.075
 
-vec4 bevel(in vec4 base, in sampler2D sampler, in vec2 parallax) {
+vec4 bevel(in vec4 base, in sampler2D targetSampler, in vec2 parallax) {
   bool dim = false;
 
   lowp float STEP = 1.0 / float(PARALLAX_SAMPLES);
@@ -24,7 +24,7 @@ vec4 bevel(in vec4 base, in sampler2D sampler, in vec2 parallax) {
   // for(int i=PARALLAX_SAMPLES; i>0; i--) {
     lowp float factor = float(i) * STEP;
 
-    vec4 beveledCurve = texture(sampler, vUV - parallax*factor);
+    vec4 beveledCurve = texture(targetSampler, vUV - parallax*factor);
     if(beveledCurve.a == 1.0) {
       base = beveledCurve;
     } 

@@ -1,4 +1,5 @@
 import { mat3 } from "gl-matrix"
+import { EPSILON } from "@/lib/math"
 
 export abstract class Object2D {
   protected matrix: mat3 = mat3.create()
@@ -38,17 +39,31 @@ export abstract class Object2D {
   get x() {
     return this._x
   }
+
   get y() {
     return this._y
   }
+
   get width() {
     return this._width
   }
+
   get height() {
     return this._height
   }
+
   get rotation() {
     return this._rotation
+  }
+
+  copyTransform(object: Object2D) {
+    this.setTransform(
+      object.x,
+      object.y,
+      object.width,
+      object.height,
+      object.rotation,
+    )
   }
 
   setTransform(
@@ -64,7 +79,7 @@ export abstract class Object2D {
     this._height = height
     this._rotation = rotation
 
-    if (Math.abs(rotation) > 1e-6) {
+    if (Math.abs(rotation) > EPSILON) {
       mat3.fromTranslation(this.matrix, [width / 2 + x, height / 2 + y])
       mat3.rotate(this.matrix, this.matrix, rotation)
       mat3.translate(this.matrix, this.matrix, [-width / 2, -height / 2])

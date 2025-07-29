@@ -1,11 +1,12 @@
-import type { Object2D } from "./object-2d"
 import { Consts } from "../consts"
+
+type Target = { x: number; y: number; width: number; height: number }
 
 export class Camera {
   private resolution = { width: 0, height: 0 }
-  private vector: Float32Array
+  private readonly vector: Float32Array
   public changed = false
-  private target: Object2D | null = null
+  private target: Target | null = null
 
   constructor() {
     this.vector = new Float32Array([0, 0, 1, 1])
@@ -18,6 +19,7 @@ export class Camera {
   get x() {
     return this.vector[0]
   }
+
   set x(value: number) {
     this.vector[0] = value
     this.changed = true
@@ -26,6 +28,7 @@ export class Camera {
   get y() {
     return this.vector[1]
   }
+
   set y(value: number) {
     this.vector[1] = value
     this.changed = true
@@ -34,6 +37,7 @@ export class Camera {
   get width() {
     return this.vector[2]
   }
+
   set width(value: number) {
     this.vector[2] = value
     this.changed = true
@@ -42,6 +46,7 @@ export class Camera {
   get height() {
     return this.vector[3]
   }
+
   set height(value: number) {
     this.vector[3] = value
     this.changed = true
@@ -66,7 +71,7 @@ export class Camera {
     this.changed = true
   }
 
-  follow(target: Object2D) {
+  follow(target: Target) {
     this.target = target
   }
 

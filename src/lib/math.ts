@@ -1,3 +1,12 @@
+export const EPSILON = 1e-6 as const
+
+export function epsilonToZero(value: number) {
+  if (Math.abs(value) < EPSILON) {
+    return 0
+  }
+  return value
+}
+
 export function normalizeAngle(angle: number) {
   const twoPi = 2 * Math.PI
   return ((angle % twoPi) + twoPi) % twoPi

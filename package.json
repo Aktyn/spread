@@ -7,11 +7,12 @@
   "scripts": {
     "dev": "vite --host",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
+    "lint": "eslint . --fix",
     "typecheck": "tsc --noEmit --skipLibCheck -p ./tsconfig.app.json",
     "preview": "vite preview",
-    "start": "npm run preview", 
-    "test": "vitest",
+    "start": "npm run preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "test:ui": "vitest --ui"
   },
   "dependencies": {
@@ -40,6 +41,7 @@
     "babel-plugin-react-compiler": "experimental",
     "eslint": "^9.31.0",
     "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-prettier": "^5.5.1",
     "eslint-plugin-react-compiler": "experimental",
     "eslint-plugin-react-hooks": "^5.2.0",

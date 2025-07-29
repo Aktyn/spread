@@ -1,4 +1,4 @@
-import { assert } from "../lib/utils"
+import { assert } from "@/lib/utils"
 import { Assets } from "./assets"
 import { Framebuffer } from "./framebuffer"
 import { Layer } from "./layer"

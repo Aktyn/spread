@@ -1,6 +1,6 @@
 import { createNoise2D, type NoiseFunction2D } from "simplex-noise"
 import alea from "alea"
-import { clamp, mix, transformRange } from "../../lib/math"
+import { clamp, EPSILON, mix, transformRange } from "@/lib/math"
 
 type LayerParameters = {
   /**
@@ -52,7 +52,7 @@ class TerrainGeneratorWorker {
   ) {
     const fade = this.options.fade ?? 1
 
-    if (fade > 1e-6) {
+    if (fade > EPSILON) {
       return value1 <= fade
         ? mix(channelFactor, value2, (fade - value1) / fade)
         : channelFactor

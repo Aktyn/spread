@@ -1,12 +1,14 @@
-import type { Renderer } from "../../graphics/renderer"
+import type { Renderer } from "@/graphics/renderer"
 import { Consts } from "../consts"
-import { Texture, type ImageSource } from "../../graphics/texture"
-import { Sprite } from "../../graphics/sprite"
+import { type ImageSource, Texture } from "@/graphics/texture"
+import { Sprite } from "@/graphics/sprite"
+import type { PIXEL_DATA, RasterObject } from "@/game/physics/raster-object"
 
-export class Tile extends Sprite {
+export class Tile extends Sprite implements RasterObject {
   public static readonly TILE_SCALE = 1
 
   public readonly source
+  private readonly channels: 4 | 3
 
   private dirty = false
 
@@ -21,15 +23,16 @@ export class Tile extends Sprite {
     zIndex: number,
     private readonly rendererLayer: keyof Renderer["layers"],
     enableTransparency: boolean,
+    data?: Uint8Array,
   ) {
     const channels = enableTransparency ? 4 : 3
 
-    const buffer = new Uint8Array(
-      Consts.TILE_RESOLUTION * Consts.TILE_RESOLUTION * channels,
-    )
-    // buffer.fill(128)
     const source: ImageSource = {
-      data: buffer,
+      data:
+        data ??
+        new Uint8Array(
+          Consts.TILE_RESOLUTION * Consts.TILE_RESOLUTION * channels,
+        ),
       width: Consts.TILE_RESOLUTION,
       height: Consts.TILE_RESOLUTION,
       format: enableTransparency ? renderer.gl.RGBA : renderer.gl.RGB,
@@ -38,7 +41,8 @@ export class Tile extends Sprite {
     super(renderer.gl, new Texture(renderer.gl, source), zIndex)
 
     this.source = source
-    this.setTransform(x, y, Tile.TILE_SCALE, Tile.TILE_SCALE) //TODO: restore
+    this.channels = channels
+    this.setTransform(x, y, Tile.TILE_SCALE, Tile.TILE_SCALE)
     // this.setTransform(
     //   x,
     //   y,
@@ -55,6 +59,27 @@ export class Tile extends Sprite {
     this.texture.dispose()
   }
 
+  getPixel(outPixel: PIXEL_DATA, x: number, y: number) {
+    const pixelX = Math.floor(
+      ((x - this.x) / Tile.TILE_SCALE) * Consts.TILE_RESOLUTION,
+    )
+    const pixelY = Math.floor(
+      ((y - this.y) / Tile.TILE_SCALE) * Consts.TILE_RESOLUTION,
+    )
+
+    const pixelIndex =
+      (pixelX +
+        (Consts.TILE_RESOLUTION - pixelY - 1) * Consts.TILE_RESOLUTION) *
+      this.channels
+
+    outPixel[0] = this.source.data[pixelIndex]
+    outPixel[1] = this.source.data[pixelIndex + 1]
+    outPixel[2] = this.source.data[pixelIndex + 2]
+    if (outPixel.length === 4) {
+      outPixel[3] = this.source.data[pixelIndex + 3]
+    }
+  }
+
   /** Should be called after every change to the source.data */
   setDirty() {
     this.dirty = true
@@ -65,13 +90,6 @@ export class Tile extends Sprite {
       return
     }
 
-    // if (Math.random() > 0.99) {
-    // if (Math.random() > 0.999999) {
-    //   this.source.data.fill(Math.random() * 16 + 16)
-    // } else {
-    //   return
-    // }
-
     if (
       force ||
       this.textureUpdateCounter++ % this.textureUpdateFrequency === 0
@@ -81,5 +99,9 @@ export class Tile extends Sprite {
     }
 
     this.dirty = false
+  }
+
+  public static floorToTileScale(value: number) {
+    return Math.floor(value / Tile.TILE_SCALE) * Tile.TILE_SCALE
   }
 }

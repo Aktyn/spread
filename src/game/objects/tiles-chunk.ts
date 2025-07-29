@@ -1,16 +1,19 @@
-import type { Renderer } from "../../graphics/renderer"
-import { randomIntInRange, shuffle } from "../../lib/random"
-import { wait } from "../../lib/utils"
+import type { Renderer } from "@/graphics/renderer"
+import { randomIntInRange, shuffle } from "@/lib/random"
+import { wait } from "@/lib/utils"
 import { Queue } from "../utils/queue"
 import type { TerrainGenerator } from "../utils/terrain-generator"
 import { Tile } from "./tile"
+import { type PIXEL_DATA, RasterObject } from "@/game/physics/raster-object"
+import { DebugLayer } from "@/debug-layer"
 
-export class TilesChunk {
+export class TilesChunk extends RasterObject {
   private static Queue = new Queue<TilesChunk>()
 
   public static queueSize() {
     return TilesChunk.Queue.size
   }
+
   public static clearQueue() {
     TilesChunk.Queue.clear()
   }
@@ -22,10 +25,10 @@ export class TilesChunk {
   private _ready = false //TODO: use this flag to defer first render if not enough surrounding tiles are ready
 
   /**
-   * It means that structure of this chunk has been changed and should be stored in external storage\
+   * It means that the structure of this chunk has been changed and should be stored in external storage\
    * Unchanged chunk can be easily regenerated with perlin noise
    * */
-  private eligibleForStorage = false
+  // private eligibleForStorage = false //TODO: use and implement storage logic
 
   constructor(
     private readonly renderer: Renderer,
@@ -37,6 +40,8 @@ export class TilesChunk {
     private readonly enableTransparency: boolean,
     priority: number,
   ) {
+    super()
+
     TilesChunk.Queue.add(this, priority)
     void this.generate(terrainGenerator).finally(() => {
       TilesChunk.Queue.remove(this)
@@ -59,6 +64,26 @@ export class TilesChunk {
 
   get ready() {
     return this._ready
+  }
+
+  getPixel(outPixel: PIXEL_DATA, x: number, y: number) {
+    const tileX = Tile.floorToTileScale(x - this.x)
+    const tileY = Tile.floorToTileScale(y - this.y)
+
+    const tile = this.tiles[tileX]?.[tileY]
+
+    if (!tile) {
+      throw new Error(
+        "Tile not found. All tiles overlapping with dynamic objects must be generated/loaded before rendering.",
+      )
+    }
+
+    tile.getPixel(outPixel, x, y)
+
+    if (DebugLayer.ctx && outPixel[0] > 0) {
+      DebugLayer.ctx.fillStyle = "#fff1"
+      DebugLayer.ctx.fillRect(tile.x, tile.y, Tile.TILE_SCALE, Tile.TILE_SCALE)
+    }
   }
 
   private async generate(terrainGenerator: TerrainGenerator) {
@@ -85,21 +110,26 @@ export class TilesChunk {
       tilesToGenerate.map(async (tileIndexes) => {
         await wait(randomIntInRange(2, 8))
 
+        const tileX = this.x + tileIndexes.x * Tile.TILE_SCALE
+        const tileY = this.y + tileIndexes.y * Tile.TILE_SCALE
+
+        const tileData = await terrainGenerator.generateTileData(tileX, tileY)
+
         const tile = new Tile(
           this.renderer,
-          this.x + tileIndexes.x,
-          this.y + tileIndexes.y,
+          tileX,
+          tileY,
           this.zIndex,
           this.rendererLayer,
           this.enableTransparency,
+          tileData,
         )
-        const tileData = await terrainGenerator.generateTileData(tile.x, tile.y)
 
-        if (!this.disposed) {
-          tile.source.data.set(tileData)
-          tile.setDirty()
-          tile.update(true)
-        } else {
+        // tile.source.data.set(tileData)
+        // tile.setDirty()
+        // tile.update(true)
+
+        if (this.disposed) {
           tile.dispose()
         }
 

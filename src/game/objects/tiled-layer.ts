@@ -1,13 +1,15 @@
-import type { Renderer } from "../../graphics/renderer"
+import type { Renderer } from "@/graphics/renderer"
 import type { GameConfig } from "../config"
 import type { TerrainGenerator } from "../utils/terrain-generator"
 import type { Camera } from "./camera"
 import { TilesChunk } from "./tiles-chunk"
+import { type PIXEL_DATA, RasterObject } from "@/game/physics/raster-object"
+import { DebugLayer } from "@/debug-layer"
 
 type ChunkX = number
 type ChunkY = number
 
-export class TiledLayer {
+export class TiledLayer extends RasterObject {
   private readonly tileChunks = new Map<ChunkX, Map<ChunkY, TilesChunk>>()
 
   private currentChunkX = -Number.MAX_SAFE_INTEGER
@@ -22,7 +24,9 @@ export class TiledLayer {
     private readonly zIndex: number,
     private readonly rendererLayer: keyof Renderer["layers"],
     private readonly terrainGenerator: TerrainGenerator,
-  ) {}
+  ) {
+    super()
+  }
 
   dispose() {
     for (const chunk of this.getChunksAsArray()) {
@@ -45,6 +49,31 @@ export class TiledLayer {
       (acc, row) => acc + row.size,
       0,
     )
+  }
+
+  getPixel(outPixel: PIXEL_DATA, x: number, y: number) {
+    const chunkX = TilesChunk.floorToChunkSize(x)
+    const chunkY = TilesChunk.floorToChunkSize(y)
+
+    const chunk = this.tileChunks.get(chunkX)?.get(chunkY)
+
+    if (!chunk) {
+      throw new Error(
+        "Chunk not found. All chunks overlapping with dynamic objects must be generated/loaded.",
+      )
+    }
+
+    chunk.getPixel(outPixel, x, y)
+
+    if (DebugLayer.ctx && outPixel[0] > 0) {
+      DebugLayer.ctx.fillStyle = "#44f1"
+      DebugLayer.ctx.fillRect(
+        chunkX,
+        chunkY,
+        TilesChunk.CHUNK_SIZE,
+        TilesChunk.CHUNK_SIZE,
+      )
+    }
   }
 
   private updateLoadedChunks(originX: number, originY: number) {

@@ -1,5 +1,7 @@
 import { Consts } from "../consts"
+// eslint-disable-next-line import/extensions
 import type { TerrainGeneratorOptions } from "./terrain-generator.worker"
+// eslint-disable-next-line import/extensions
 import Worker from "./terrain-generator.worker?worker"
 
 type WorkerResponse = {

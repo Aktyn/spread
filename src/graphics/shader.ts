@@ -1,8 +1,8 @@
-import mainVertexShader from "../assets/shaders/main.vs?raw"
-import mainFragmentShader from "../assets/shaders/main.fs?raw"
-import combineVertexShader from "../assets/shaders/combine.vs?raw"
-import combineFragmentShader from "../assets/shaders/combine.fs?raw"
-import { assert } from "../lib/utils"
+import mainVertexShader from "../assets/shaders/main.vert?raw"
+import mainFragmentShader from "../assets/shaders/main.frag?raw"
+import combineVertexShader from "../assets/shaders/combine.vert?raw"
+import combineFragmentShader from "../assets/shaders/combine.frag?raw"
+import { assert } from "@/lib/utils"
 
 export enum ShaderVariant {
   Basic = "basic",

@@ -32,7 +32,10 @@ export class Layer {
 
   dispose() {
     for (let zIndex = 0; zIndex < this.objects.length; zIndex++) {
-      // this.removeObjects(...this.objects[zIndex])
+      if (!(zIndex in this.objects)) {
+        continue
+      }
+      this.removeObjects(...this.objects[zIndex])
     }
     this.objects = []
   }

@@ -6,6 +6,7 @@ import {
   useState,
   type ReactNode,
   type RefObject,
+  type PropsWithChildren,
 } from "react"
 
 export interface StatsInterface {
@@ -18,13 +19,18 @@ export type StatsItem = {
   format?: (value: number) => ReactNode
 }
 
-type StatsProps = {
+type StatsProps = PropsWithChildren<{
   ref: RefObject<StatsInterface | null>
   items: Array<StatsItem>
   updateInterval?: number
-}
+}>
 
-export function Stats({ ref, items, updateInterval = 1000 }: StatsProps) {
+export function Stats({
+  ref,
+  children,
+  items,
+  updateInterval = 1000,
+}: StatsProps) {
   const buffers = useRef(new Map<string, number[]>())
 
   const [results, setResults] = useState<
@@ -81,6 +87,7 @@ export function Stats({ ref, items, updateInterval = 1000 }: StatsProps) {
           </b>
         </Fragment>
       ))}
+      {children}
     </div>
   )
 }

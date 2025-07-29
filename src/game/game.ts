@@ -1,4 +1,4 @@
-import type { Renderer } from "../graphics/renderer"
+import type { Renderer } from "@/graphics/renderer"
 import { defaultGameConfig } from "./config"
 import { Consts } from "./consts"
 import { Camera } from "./objects/camera"
@@ -7,17 +7,19 @@ import { TiledLayer } from "./objects/tiled-layer"
 import { TilesChunk } from "./objects/tiles-chunk"
 import { Steering } from "./steering"
 import { TerrainGenerator } from "./utils/terrain-generator"
+import { Physics } from "@/game/physics/physics"
 
 export class Game {
   private lastTime = 0
   public totalChunksCount = 0
 
+  private readonly physics = new Physics()
   private readonly steering = new Steering()
   public readonly camera = new Camera()
-  public readonly player: Player
+  public readonly player
 
-  private readonly groundLayer: TiledLayer
-  private readonly collisionLayer: TiledLayer
+  private readonly groundLayer
+  private readonly collisionLayer
 
   constructor(private readonly renderer: Renderer) {
     this.groundLayer = new TiledLayer(
@@ -50,9 +52,12 @@ export class Game {
       renderer.assets.textures.player,
       this.steering,
     )
-    renderer.layers.objects.addObjects(this.player)
+    renderer.layers.objects.addObjects(this.player.sprite)
 
     this.camera.follow(this.player)
+
+    this.physics.addObject(this.collisionLayer)
+    this.physics.addObject(this.player)
   }
 
   dispose() {
@@ -62,7 +67,10 @@ export class Game {
     this.groundLayer.dispose()
     this.collisionLayer.dispose()
 
-    this.renderer.layers.objects.removeObjects(this.player)
+    this.renderer.layers.objects.removeObjects(this.player.sprite)
+
+    this.physics.removeObject(this.collisionLayer)
+    this.physics.removeObject(this.player)
   }
 
   get chunksInQueue() {
@@ -74,7 +82,7 @@ export class Game {
   }
 
   update(time: number) {
-    let deltaTime = (time - this.lastTime) / 1000
+    let deltaTime = (time - this.lastTime) / 1000.0
     this.lastTime = time
 
     if (deltaTime > 1) {
@@ -86,7 +94,7 @@ export class Game {
       deltaTime = 0
     }
 
-    this.player.update(deltaTime)
+    this.player.updateControls(deltaTime)
 
     this.totalChunksCount = 0
 
@@ -97,6 +105,10 @@ export class Game {
     this.totalChunksCount += this.collisionLayer.getChunksCount()
 
     this.camera.update(deltaTime)
+
+    if (!this.waitingForChunks) {
+      this.physics.update(deltaTime)
+    }
 
     if (this.camera.changed) {
       this.renderer.setViewport(this.camera.getVector())
