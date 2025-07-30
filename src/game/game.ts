@@ -85,8 +85,8 @@ export class Game {
     let deltaTime = (time - this.lastTime) / 1000.0
     this.lastTime = time
 
-    if (deltaTime > 1) {
-      console.warn("Skipping frame due to delta time exceeding 1000ms")
+    if (deltaTime > 0.1) {
+      console.warn("Skipping frame due to delta time exceeding 100ms")
       return
     }
 

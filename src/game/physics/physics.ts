@@ -49,11 +49,11 @@ export class Physics {
     }
 
     if (collidingObjects.size) {
-      console.log(`Solving ${collidingObjects.size} collisions...`)
+      console.info(`Solving ${collidingObjects.size} collisions...`)
     }
 
     for (const object of collidingObjects.values()) {
-      object.solveCollisions(deltaTime)
+      object.solveCollisions()
     }
   }
 }

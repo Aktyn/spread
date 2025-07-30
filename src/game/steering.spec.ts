@@ -6,15 +6,12 @@ describe("Steering", () => {
   let mockAddEventListener: ReturnType<typeof vi.fn>
   let mockRemoveEventListener: ReturnType<typeof vi.fn>
   let keyDownHandler: (event: KeyboardEvent) => void
-  let keyUpHandler: (event: KeyboardEvent) => void
 
   beforeEach(() => {
     mockAddEventListener = vi.fn(
       (event: string, handler: (event: KeyboardEvent) => void) => {
         if (event === "keydown") {
           keyDownHandler = handler
-        } else if (event === "keyup") {
-          keyUpHandler = handler
         }
       },
     )

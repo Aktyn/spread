@@ -3,7 +3,7 @@ import type { GameConfig } from "../config"
 import type { TerrainGenerator } from "../utils/terrain-generator"
 import type { Camera } from "./camera"
 import { TilesChunk } from "./tiles-chunk"
-import { type PIXEL_DATA, RasterObject } from "@/game/physics/raster-object"
+import { type PixelData, RasterObject } from "@/game/physics/raster-object"
 import { DebugLayer } from "@/debug-layer"
 
 type ChunkX = number
@@ -51,7 +51,7 @@ export class TiledLayer extends RasterObject {
     )
   }
 
-  getPixel(outPixel: PIXEL_DATA, x: number, y: number) {
+  getPixel(outPixel: PixelData, x: number, y: number) {
     const chunkX = TilesChunk.floorToChunkSize(x)
     const chunkY = TilesChunk.floorToChunkSize(y)
 

@@ -44,6 +44,14 @@ export abstract class Object2D {
     return this._y
   }
 
+  get centerX() {
+    return this.x + this.width / 2
+  }
+
+  get centerY() {
+    return this.y + this.height / 2
+  }
+
   get width() {
     return this._width
   }

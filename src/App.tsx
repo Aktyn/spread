@@ -24,6 +24,11 @@ const statsItems = [
     format: (value) => value.toFixed(2),
   },
   {
+    name: "player-speed",
+    label: "Player speed",
+    format: (value) => value.toFixed(2),
+  },
+  {
     name: "chunks-queue",
     label: "Loading chunks",
     format: (value) => Math.round(value),
@@ -105,6 +110,7 @@ function App() {
       statsRef.current?.update("frame", performance.now() - start)
       statsRef.current?.update("player-x", game.player.x)
       statsRef.current?.update("player-y", game.player.y)
+      statsRef.current?.update("player-speed", game.player.velocity.length)
       statsRef.current?.update("chunks-queue", game.chunksInQueue)
       statsRef.current?.update("chunks-count", game.totalChunksCount)
 

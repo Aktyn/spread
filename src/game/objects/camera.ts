@@ -1,4 +1,5 @@
 import { Consts } from "../consts"
+import { EPSILON } from "@/lib/math"
 
 type Target = { x: number; y: number; width: number; height: number }
 
@@ -7,6 +8,11 @@ export class Camera {
   private readonly vector: Float32Array
   public changed = false
   private target: Target | null = null
+
+  private targetX = 0
+  private targetY = 0
+  private followSpeed = 20
+  private smoothingEnabled = true
 
   constructor() {
     this.vector = new Float32Array([0, 0, 1, 1])
@@ -73,13 +79,50 @@ export class Camera {
 
   follow(target: Target) {
     this.target = target
+    if (target) {
+      this.targetX = target.x + target.width / 2
+      this.targetY = target.y + target.height / 2
+    }
   }
 
-  //TODO: damp camera movement
-  update(_deltaTime: number) {
+  /**
+   * Set the speed at which the camera follows the target
+   * @param speed Higher values = faster following (default: 5)
+   */
+  setFollowSpeed(speed: number) {
+    this.followSpeed = Math.max(0.1, speed)
+  }
+
+  /**
+   * Enable or disable smooth camera movement
+   * @param enabled If false, camera will snap directly to target
+   */
+  setSmoothingEnabled(enabled: boolean) {
+    this.smoothingEnabled = enabled
+  }
+
+  update(deltaTime: number) {
     if (this.target) {
-      this.x = this.target.x + this.target.width / 2
-      this.y = this.target.y + this.target.height / 2
+      this.targetX = this.target.x + this.target.width / 2
+      this.targetY = this.target.y + this.target.height / 2
+
+      if (this.smoothingEnabled) {
+        const lerpFactor = Math.min(1, this.followSpeed * deltaTime)
+
+        const newX = this.x + (this.targetX - this.x) * lerpFactor
+        const newY = this.y + (this.targetY - this.y) * lerpFactor
+
+        if (
+          Math.abs(newX - this.x) > EPSILON ||
+          Math.abs(newY - this.y) > EPSILON
+        ) {
+          this.x = newX
+          this.y = newY
+        }
+      } else {
+        this.x = this.targetX
+        this.y = this.targetY
+      }
     }
   }
 }

@@ -1,7 +1,7 @@
 import type { PhysicalObject } from "@/game/physics/physical-object"
 import { Object2D } from "@/game/objects/object-2d"
 import { DynamicVector2 } from "@/game/physics/dynamic-vector2"
-import { EPSILON } from "@/lib/math"
+import { EPSILON, isVectorAlmostZero } from "@/lib/math"
 import { CollisionsSolver } from "@/game/physics/collisions/collisions-solver"
 import { vec2 } from "gl-matrix"
 import { RasterSensor } from "@/game/physics/collisions/raster-sensor"
@@ -11,7 +11,9 @@ export class DynamicObject extends Object2D implements PhysicalObject {
     velocity: new DynamicVector2(),
     angularVelocity: 0,
     // friction: 0,
-    // elasticity: 0,
+    /** Elastic collision factor (bounciness), between 0 and 1 */
+    elasticity: 1,
+    /** Used to calculate collision forces between two dynamic objects */
     // mass: 1,
     // damping ??
   }
@@ -32,43 +34,53 @@ export class DynamicObject extends Object2D implements PhysicalObject {
     return this.parameters.velocity
   }
 
-  solveCollisions(deltaTime: number) {
-    const factor = Math.min(deltaTime / 1000, 0.1)
-    const impulse = this.solver.calculateTotalImpulse(factor)
+  get angularVelocity() {
+    return this.parameters.angularVelocity
+  }
 
-    if (!impulse) {
+  get elasticity() {
+    return this.parameters.elasticity
+  }
+
+  solveCollisions() {
+    if (!this.solver.hasAccumulatedForces) {
       return
     }
 
-    // Prevent from moving in a single iteration by more than defined maximum relative to the object's radius
-    const maxJumpLength = (this.width + this.height) / 16 // radius / 4
-    const impulseLength = vec2.length(impulse)
-    if (impulseLength > maxJumpLength) {
-      vec2.scale(impulse, vec2.normalize(impulse, impulse), maxJumpLength)
+    //TODO: more sophisticated collision solving algorithm in which the object will iteratively move back to its previous position (by few pixels in each step) until its sensors will no longer detect collision; in case of persisting collision (object was already colliding in previous frame) this approach will not work
+    const positionSolverVector =
+      this.solver.calculateTotalPositionSolverVector()
+    if (!isVectorAlmostZero(positionSolverVector)) {
+      /**
+       * Divide total forces by this factor for more accurate collision solving\
+       * Should be equal to 1 / iterations
+       * */
+      const iterationStepFactor = 0.1 //TODO: 1 / collisionSolverIterations
+      vec2.scale(
+        positionSolverVector,
+        positionSolverVector,
+        iterationStepFactor,
+      )
+
+      this.setPosition(
+        this.x + positionSolverVector[0],
+        this.y + positionSolverVector[1],
+      )
+      this.updateSensor()
     }
 
-    this.setPosition(this.x + impulse[0], this.y + impulse[1])
-    this.updateSensor()
+    const impulseVector = this.solver.calculateTotalImpulse()
+    if (!isVectorAlmostZero(impulseVector)) {
+      this.velocity.applyImpulse(impulseVector)
+      //TODO: calculate and apply impulse to angular velocity
+    }
+
+    this.solver.clear()
   }
 
-  /** Should only be called from Physics.update method */
+  /** Should only be called from Physics's update method or from derived classes with `super.update(deltaTime)` */
   update(deltaTime: number) {
     //TODO: detect idle objects (velocities below epsilon) to prevent unnecessary updates (resume on collision)
-
-    // if (DebugLayer.ctx) {
-    //   DebugLayer.ctx.fillStyle = "#f22"
-    //   for (const point of this.sensor) {
-    //     DebugLayer.ctx.beginPath()
-    //     DebugLayer.ctx.arc(
-    //       point[0],
-    //       point[1],
-    //       (1 / Consts.TILE_RESOLUTION) * 2,
-    //       0,
-    //       Math.PI * 2,
-    //     )
-    //     DebugLayer.ctx.fill()
-    //   }
-    // }
 
     let moved = false
     let x = this.x

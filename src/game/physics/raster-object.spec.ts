@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest"
-import type { RasterObject, PIXEL_DATA } from "./raster-object"
+import type { RasterObject, PixelData } from "./raster-object"
 
 describe("RasterObject", () => {
   it("should be implementable as an interface", () => {
     // Test that the interface can be implemented
     class TestRasterObject implements RasterObject {
-      getPixel(outPixel: PIXEL_DATA, _x: number, _y: number): void {
+      getPixel(outPixel: PixelData, _x: number, _y: number): void {
         outPixel[0] = 255
         outPixel[1] = 0
         outPixel[2] = 0
@@ -23,7 +23,7 @@ describe("RasterObject", () => {
 
   it("should have getPixel method that modifies outPixel array", () => {
     class TestRasterObject implements RasterObject {
-      getPixel(outPixel: PIXEL_DATA, x: number, y: number): void {
+      getPixel(outPixel: PixelData, x: number, y: number): void {
         outPixel[0] = x % 256
         outPixel[1] = y % 256
         outPixel[2] = 128
@@ -34,7 +34,7 @@ describe("RasterObject", () => {
     }
 
     const testObject = new TestRasterObject()
-    const pixel: PIXEL_DATA = [0, 0, 0, 0]
+    const pixel: PixelData = [0, 0, 0, 0]
 
     testObject.getPixel(pixel, 100, 50)
 
@@ -46,7 +46,7 @@ describe("RasterObject", () => {
 
   it("should work with RGB pixel data (3 channels)", () => {
     class TestRasterObject implements RasterObject {
-      getPixel(outPixel: PIXEL_DATA, _x: number, _y: number): void {
+      getPixel(outPixel: PixelData, _x: number, _y: number): void {
         outPixel[0] = 255
         outPixel[1] = 128
         outPixel[2] = 64

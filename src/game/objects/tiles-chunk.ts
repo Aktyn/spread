@@ -4,7 +4,7 @@ import { wait } from "@/lib/utils"
 import { Queue } from "../utils/queue"
 import type { TerrainGenerator } from "../utils/terrain-generator"
 import { Tile } from "./tile"
-import { type PIXEL_DATA, RasterObject } from "@/game/physics/raster-object"
+import { type PixelData, RasterObject } from "@/game/physics/raster-object"
 import { DebugLayer } from "@/debug-layer"
 
 export class TilesChunk extends RasterObject {
@@ -66,7 +66,7 @@ export class TilesChunk extends RasterObject {
     return this._ready
   }
 
-  getPixel(outPixel: PIXEL_DATA, x: number, y: number) {
+  getPixel(outPixel: PixelData, x: number, y: number) {
     const tileX = Tile.floorToTileScale(x - this.x)
     const tileY = Tile.floorToTileScale(y - this.y)
 

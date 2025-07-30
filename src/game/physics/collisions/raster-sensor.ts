@@ -45,6 +45,7 @@ export class RasterSensor {
   }
 }
 
+/** IMPORTANT NOTE: generated shape's origin must be as close to [0, 0] point as possible */
 const shapes: { [key in RasterSensorShape]: SensorPoint[] } = {
   [RasterSensorShape.Circle]: Array.from({ length: 16 }).map((_, i) => {
     const angle = (i / 16) * Math.PI * 2

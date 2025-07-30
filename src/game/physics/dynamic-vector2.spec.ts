@@ -15,8 +15,8 @@ describe(DynamicVector2.name, () => {
     const vector = new DynamicVector2(3, 4)
     expect(vector.x).toBe(3)
     expect(vector.y).toBe(4)
-    expect(vector.length).toBe(0) // Length is not calculated from x,y in constructor
-    expect(vector.angle).toBe(0)
+    expect(vector.length).toBe(5) // Length is calculated from x,y in the constructor
+    expect(vector.angle).toBeCloseTo(0.9272952180016122, EPSILON) // Angle is calculated from x,y in the constructor
   })
 
   it("should set angle and recalculate x,y coordinates", () => {

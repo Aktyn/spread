@@ -17,7 +17,7 @@ describe(DynamicObject.name, () => {
       velocity = [0, 0] as [number, number]
       // @ts-expect-error value overload in a test file
       solver = {
-        clearForces: () => {},
+        clear: () => {},
         calculateTotalImpulse: () => null,
       } as CollisionsSolver
     }
@@ -38,7 +38,7 @@ describe(DynamicObject.name, () => {
       velocity = [0, 0] as [number, number]
       // @ts-expect-error value overload in a test file
       solver = {
-        clearForces: () => {},
+        clear: () => {},
         calculateTotalImpulse: () => null,
       } as CollisionsSolver
     }
@@ -69,7 +69,7 @@ describe(DynamicObject.name, () => {
   it("should have solver property", () => {
     const testObject = new DynamicObject()
     expect(testObject.solver).toBeDefined()
-    expect(typeof testObject.solver.clearForces).toBe("function")
+    expect(typeof testObject.solver.clear).toBe("function")
     expect(typeof testObject.solver.calculateTotalImpulse).toBe("function")
   })
 })

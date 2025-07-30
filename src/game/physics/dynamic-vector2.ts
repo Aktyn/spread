@@ -1,18 +1,24 @@
-export class DynamicVector2 {
-  private _x: number
-  private _y: number
+import type { vec2 } from "gl-matrix"
 
+export class DynamicVector2 {
   private _length = 0
   private _angle = 0
 
-  constructor(x = 0, y = 0) {
-    this._x = x
-    this._y = y
+  constructor(
+    private _x = 0,
+    private _y = 0,
+  ) {
+    this.recalculatePolar()
   }
 
-  private recalculateXY() {
+  private recalculateCartesian() {
     this._x = this._length * Math.cos(this._angle)
     this._y = this._length * Math.sin(this._angle)
+  }
+
+  private recalculatePolar() {
+    this._length = Math.sqrt(this._x ** 2 + this._y ** 2)
+    this._angle = Math.atan2(this._y, this._x)
   }
 
   get x() {
@@ -29,7 +35,7 @@ export class DynamicVector2 {
 
   setAngle(angle: number) {
     this._angle = angle
-    this.recalculateXY()
+    this.recalculateCartesian()
   }
 
   get length() {
@@ -39,6 +45,13 @@ export class DynamicVector2 {
   setLength(length: number, angle = this._angle) {
     this._length = length
     this._angle = angle
-    this.recalculateXY()
+    this.recalculateCartesian()
+  }
+
+  applyImpulse(impulse: vec2) {
+    this._x += impulse[0]
+    this._y += impulse[1]
+
+    this.recalculatePolar()
   }
 }

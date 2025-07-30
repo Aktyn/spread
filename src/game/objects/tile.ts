@@ -2,7 +2,7 @@ import type { Renderer } from "@/graphics/renderer"
 import { Consts } from "../consts"
 import { type ImageSource, Texture } from "@/graphics/texture"
 import { Sprite } from "@/graphics/sprite"
-import type { PIXEL_DATA, RasterObject } from "@/game/physics/raster-object"
+import type { PixelData, RasterObject } from "@/game/physics/raster-object"
 
 export class Tile extends Sprite implements RasterObject {
   public static readonly TILE_SCALE = 1
@@ -59,7 +59,7 @@ export class Tile extends Sprite implements RasterObject {
     this.texture.dispose()
   }
 
-  getPixel(outPixel: PIXEL_DATA, x: number, y: number) {
+  getPixel(outPixel: PixelData, x: number, y: number) {
     const pixelX = Math.floor(
       ((x - this.x) / Tile.TILE_SCALE) * Consts.TILE_RESOLUTION,
     )

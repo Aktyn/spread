@@ -11,25 +11,25 @@ describe(CollisionsSolver.name, () => {
   })
 
   it("should initialize with empty forces", () => {
-    expect(solver.calculateTotalImpulse(1)).toBeNull()
+    expect(solver.calculateTotalImpulse()).toEqual(Float32Array.from([0, 0]))
   })
 
   it("should clear forces", () => {
-    solver.clearForces()
-    expect(solver.calculateTotalImpulse(1)).toBeNull()
+    solver.clear()
+    expect(solver.calculateTotalImpulse()).toEqual(Float32Array.from([0, 0]))
   })
 
   it("should calculate total impulse with scale factor", () => {
     // Since pushForce is private, we can't directly test it
     // This tests the public interface
-    const impulse = solver.calculateTotalImpulse(2)
-    expect(impulse).toBeNull() // No forces added
+    const impulse = solver.calculateTotalImpulse()
+    expect(impulse).toEqual(Float32Array.from([0, 0])) // No forces added
   })
 
   it("should return null for very small forces", () => {
     // Test the EPSILON check in calculateTotalImpulse
-    const impulse = solver.calculateTotalImpulse(0.000001)
-    expect(impulse).toBeNull()
+    const impulse = solver.calculateTotalImpulse()
+    expect(impulse).toEqual(Float32Array.from([0, 0]))
   })
 
   describe("static methods", () => {

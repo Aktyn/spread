@@ -82,17 +82,17 @@ describe(Object2D.name, () => {
 
   it("should check visibility correctly when object is visible", () => {
     object.setTransform(5, 5, 2, 2, 0)
-    const viewport = new Float32Array([4, 4, 10, 10]) // x, y, width, height
+    const viewport = new Float32Array([4, 4, 0.1, 0.1]) // x, y, width, height
 
     object.checkVisibility(viewport)
 
     expect(object.visible).toBe(true)
-    expect(object.moved).toBe(false) // Should be set to false after visibility check
+    expect(object.moved).toBe(false) // Should be set to false after a visibility check
   })
 
   it("should check visibility correctly when object is not visible", () => {
     object.setTransform(100, 100, 2, 2, 0) // Far outside viewport
-    const viewport = new Float32Array([0, 0, 10, 10])
+    const viewport = new Float32Array([0, 0, 0.1, 0.1])
 
     object.checkVisibility(viewport)
 
@@ -101,7 +101,7 @@ describe(Object2D.name, () => {
   })
 
   it("should mark as moved when transform changes", () => {
-    object.checkVisibility(new Float32Array([0, 0, 10, 10])) // Reset moved to false
+    object.checkVisibility(new Float32Array([0, 0, 0.1, 0.1])) // Reset moved to false
     expect(object.moved).toBe(false)
 
     object.setTransform(1, 1, 1, 1, 0)

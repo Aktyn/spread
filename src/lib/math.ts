@@ -1,3 +1,5 @@
+import { vec2 } from "gl-matrix"
+
 export const EPSILON = 1e-6 as const
 
 export function epsilonToZero(value: number) {
@@ -31,4 +33,16 @@ export function transformRange(
   const result =
     targetMin + ((value - min) * (targetMax - targetMin)) / (max - min)
   return clampResult ? clamp(result, targetMin, targetMax) : result
+}
+
+export function isVectorAlmostZero(vector: vec2) {
+  return Math.abs(vector[0]) < EPSILON && Math.abs(vector[1]) < EPSILON
+}
+
+export function sumVectors(vectors: vec2[]) {
+  const sum = vec2.fromValues(0, 0)
+  for (const vector of vectors) {
+    vec2.add(sum, sum, vector)
+  }
+  return sum
 }

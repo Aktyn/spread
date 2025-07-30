@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest"
 import { Tile } from "./tile"
 import type { Renderer } from "@/graphics/renderer"
+import type { PixelData } from "@/game/physics/raster-object"
 
 // Mock dependencies
 vi.mock("@/graphics/texture")
@@ -66,7 +67,7 @@ describe("Tile", () => {
 
   it("should handle getPixel method", () => {
     tile = new Tile(mockRenderer, 0, 0, 0, "background", false)
-    const pixel = [0, 0, 0, 0]
+    const pixel = [0, 0, 0, 0] as PixelData
     expect(() => {
       tile.getPixel(pixel, 0, 0)
     }).not.toThrow()
